@@ -1,0 +1,114 @@
+:root {
+  /* Color Palette */
+  --bg: #F7F6F2;
+  --card-bg: #FFFFFF;
+  --dark-forest: #1F2D2A;
+  --muted-sage: #718A83;
+  --soft-mint: #A9C6B0;
+  --warm-cream: #E6E0D3;
+  --navbar-bg: #1F2D2A;
+  
+  --accent: #A9C6B0;
+  --primary-accent: #718A83;
+  --btn-hover: #1F2D2A;
+  --text: #24312E;
+  --text-muted: #718A83;
+  --white: #ffffff;
+  --border: rgba(31, 45, 42, 0.08);
+  
+  /* Shadows and Radius */
+  --shadow: 0 6px 24px rgba(34, 49, 45, 0.03), 0 2px 6px rgba(34, 49, 45, 0.01);
+  --shadow-hover: 0 16px 40px rgba(34, 49, 45, 0.08), 0 4px 12px rgba(34, 49, 45, 0.02);
+  --font-sans: 'Poppins', system-ui, -apple-system, sans-serif;
+  --radius-lg: 16px;
+  --radius-md: 12px;
+  --radius-sm: 8px;
+  --transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--primary-accent);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--btn-hover);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-15px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse-soft {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.animate-fade {
+  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slide {
+  animation: slideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Responsive Table styling defaults */
+.table-container {
+  overflow-x: auto;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow);
+}
