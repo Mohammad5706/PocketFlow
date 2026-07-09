@@ -8,6 +8,7 @@ import Dashboard from './views/Dashboard';
 import ExpensesPage from './views/ExpensesPage';
 import LoginPage from './views/LoginPage';
 import SignupPage from './views/SignupPage';
+import ResetPasswordPage from './views/ResetPasswordPage';
 import { CheckCircle, AlertTriangle, Info, Loader } from 'lucide-react';
 import './App.css';
 
@@ -98,7 +99,7 @@ export function App() {
 
     preseeds.forEach(u => {
       const key = u.email.toLowerCase();
-      if (!users[key]) {
+      if (!users[key] || !users[key].password) {
         users[key] = { name: u.name, password: u.password };
         updated = true;
       }
@@ -343,6 +344,7 @@ export function App() {
             <Routes>
               <Route path="/login" element={<LoginPage onLogin={handleLogin} showToast={showToast} />} />
               <Route path="/signup" element={<SignupPage onSignup={handleSignup} showToast={showToast} />} />
+              <Route path="/reset-password" element={<ResetPasswordPage showToast={showToast} />} />
               <Route path="*" element={<Navigate to="/login" replace />} />
             </Routes>
           </div>

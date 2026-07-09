@@ -1,28 +1,40 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { Wallet, Eye, EyeOff } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { Wallet, Eye, EyeOff, CheckCircle } from 'lucide-react';
 
-export function LoginPage({ onLogin, showToast }) {
+export function ResetPasswordPage({ showToast }) {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    const emailParam = searchParams.get('email');
+    if (emailParam) {
+      setEmail(emailParam);
+    }
+  }, [searchParams]);
 
   const validate = () => {
     const newErrors = {};
     if (!email.trim()) {
       newErrors.email = 'Email address is required';
-    } else {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        newErrors.email = 'Please enter a valid email address';
-      }
     }
 
     if (!password) {
       newErrors.password = 'Password is required';
+    } else if (password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters';
+    }
+
+    if (!confirmPassword) {
+      newErrors.confirmPassword = 'Please confirm your password';
+    } else if (password !== confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match';
     }
 
     setErrors(newErrors);
@@ -33,40 +45,25 @@ export function LoginPage({ onLogin, showToast }) {
     e.preventDefault();
     if (validate()) {
       const users = JSON.parse(localStorage.getItem('pocketflow_users') || '{}');
-      const user = users[email.toLowerCase()];
-      if (!user) {
-        setErrors({ email: 'No account found with this email. Please sign up.' });
-        return;
-      }
-      if (user.password !== password) {
-        setErrors({ password: 'Incorrect password' });
-        return;
-      }
-      onLogin(email);
-      showToast('Logged in successfully!', 'success');
-      navigate('/');
-    }
-  };
-
-  const handleForgotPassword = (e) => {
-    e.preventDefault();
-    if (email.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      const resetLink = `http://localhost:5173/reset-password?email=${encodeURIComponent(email.trim())}`;
-      const mailtoUrl = `mailto:${email.trim()}?subject=PocketFlow Password Reset Request&body=Here is your link to reset your PocketFlow password: ${encodeURIComponent(resetLink)}`;
+      const userKey = email.toLowerCase();
       
-      // Attempt to open default mail client
-      window.location.href = mailtoUrl;
+      if (!users[userKey]) {
+        setErrors({ email: 'No account found with this email' });
+        return;
+      }
 
-      showToast(`Draft opened! If not, click/copy: ${resetLink}`, 'success');
-    } else {
-      showToast('Please enter a valid email address first.', 'error');
+      // Update password
+      users[userKey].password = password;
+      localStorage.setItem('pocketflow_users', JSON.stringify(users));
+
+      showToast('Password updated successfully! Please login.', 'success');
+      navigate('/login');
     }
   };
 
   return (
     <div className="auth-page-wrapper">
       <div className="auth-card animate-fade">
-        {/* Brand Logo */}
         <div className="auth-logo-section">
           <div className="auth-logo-wrapper">
             <Wallet size={24} className="auth-logo-icon" />
@@ -74,13 +71,11 @@ export function LoginPage({ onLogin, showToast }) {
           <span className="auth-brand-name">PocketFlow</span>
         </div>
 
-        {/* Header Message */}
         <div className="auth-header">
-          <h2>Welcome Back</h2>
-          <p>Sign in to manage your expenses.</p>
+          <h2>Reset Password</h2>
+          <p>Enter your email and new password to recover access.</p>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="auth-form" noValidate>
           <div className="form-group">
             <label htmlFor="email">Email Address</label>
@@ -89,10 +84,7 @@ export function LoginPage({ onLogin, showToast }) {
                 id="email"
                 type="email"
                 value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  if (errors.email) setErrors(prev => ({ ...prev, email: null }));
-                }}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
                 className={errors.email ? 'input-error' : ''}
               />
@@ -101,7 +93,7 @@ export function LoginPage({ onLogin, showToast }) {
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">Password</label>
+            <label htmlFor="password">New Password</label>
             <div className="password-input-wrapper">
               <input
                 id="password"
@@ -126,32 +118,41 @@ export function LoginPage({ onLogin, showToast }) {
             {errors.password && <span className="auth-error-message">{errors.password}</span>}
           </div>
 
-          {/* Remember Me and Forgot Password */}
-          <div className="auth-options-row">
-            <label className="remember-me-label">
+          <div className="form-group">
+            <label htmlFor="confirmPassword">Confirm Password</label>
+            <div className="password-input-wrapper">
               <input
-                type="checkbox"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
+                id="confirmPassword"
+                type={showConfirmPassword ? 'text' : 'password'}
+                value={confirmPassword}
+                onChange={(e) => {
+                  setConfirmPassword(e.target.value);
+                  if (errors.confirmPassword) setErrors(prev => ({ ...prev, confirmPassword: null }));
+                }}
+                placeholder="••••••••"
+                className={errors.confirmPassword ? 'input-error' : ''}
               />
-              <span>Remember Me</span>
-            </label>
-            <a href="#forgot" onClick={handleForgotPassword} className="forgot-password-link">
-              Forgot Password?
-            </a>
+              <button
+                type="button"
+                className="password-toggle-btn"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                tabIndex="-1"
+              >
+                {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+            {errors.confirmPassword && <span className="auth-error-message">{errors.confirmPassword}</span>}
           </div>
 
-          {/* Submit Button */}
           <button type="submit" className="btn btn-primary auth-submit-btn">
-            Sign In
+            Update Password
           </button>
         </form>
 
-        {/* Link to Sign Up */}
         <div className="auth-footer-text">
-          <span>Don't have an account? </span>
-          <Link to="/signup" className="auth-redirect-link">
-            Create Account
+          <span>Back to </span>
+          <Link to="/login" className="auth-redirect-link">
+            Sign In
           </Link>
         </div>
       </div>
@@ -159,4 +160,4 @@ export function LoginPage({ onLogin, showToast }) {
   );
 }
 
-export default LoginPage;
+export default ResetPasswordPage;
