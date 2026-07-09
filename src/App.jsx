@@ -30,6 +30,7 @@ export function App() {
     localStorage.setItem('pocketflow_authenticated', 'true');
     localStorage.setItem('pocketflow_user_email', email);
     setCurrentUserEmail(email);
+    setExpenses([]); // Clear expenses on profile switch
     
     // Retrieve the user's name separately from email address using a users store
     const users = JSON.parse(localStorage.getItem('pocketflow_users') || '{}');
@@ -47,6 +48,7 @@ export function App() {
     localStorage.setItem('pocketflow_authenticated', 'true');
     localStorage.setItem('pocketflow_user_email', email);
     setCurrentUserEmail(email);
+    setExpenses([]); // Clear expenses on signup
     
     // Store the email-to-name mapping separately
     const users = JSON.parse(localStorage.getItem('pocketflow_users') || '{}');
@@ -62,6 +64,7 @@ export function App() {
     localStorage.removeItem('pocketflow_user_name');
     localStorage.removeItem('pocketflow_user_email');
     setCurrentUserEmail('');
+    setExpenses([]); // Clear expenses on logout
     showToast('Logged out successfully.', 'info');
   };
   
