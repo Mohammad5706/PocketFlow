@@ -17,14 +17,16 @@ public class ExpenseController {
 
     @GetMapping
     public List<Expense> getAllExpenses(@RequestHeader(value = "X-User-Email", required = false) String userEmail) {
+        System.out.println("GET /expenses called. X-User-Email: " + userEmail);
         if (userEmail != null && !userEmail.isEmpty()) {
             return expenseRepository.findByUserEmail(userEmail);
         }
-        return expenseRepository.findAll();
+        return java.util.Collections.emptyList();
     }
 
     @PostMapping
     public Expense createExpense(@RequestBody Expense expense, @RequestHeader(value = "X-User-Email", required = false) String userEmail) {
+        System.out.println("POST /expenses called. X-User-Email: " + userEmail);
         if (userEmail != null && !userEmail.isEmpty()) {
             expense.setUserEmail(userEmail);
         }
@@ -33,6 +35,7 @@ public class ExpenseController {
 
     @PutMapping("/{id}")
     public Expense updateExpense(@PathVariable Long id, @RequestBody Expense expenseDetails, @RequestHeader(value = "X-User-Email", required = false) String userEmail) {
+        System.out.println("PUT /expenses/" + id + " called. X-User-Email: " + userEmail);
         Expense expense = expenseRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Expense not found with id: " + id));
         
@@ -51,6 +54,7 @@ public class ExpenseController {
 
     @DeleteMapping("/{id}")
     public void deleteExpense(@PathVariable Long id, @RequestHeader(value = "X-User-Email", required = false) String userEmail) {
+        System.out.println("DELETE /expenses/" + id + " called. X-User-Email: " + userEmail);
         Expense expense = expenseRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Expense not found with id: " + id));
         

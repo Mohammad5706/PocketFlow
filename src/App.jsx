@@ -116,6 +116,11 @@ export function App() {
 
   // Check connection and load expenses on mount
   useEffect(() => {
+    if (!isAuthenticated) {
+      setIsLoading(false);
+      return;
+    }
+
     const initializeApp = async () => {
       setIsLoading(true);
       const isBackendOnline = await expenseService.testConnection();
@@ -132,7 +137,7 @@ export function App() {
     };
     
     initializeApp();
-  }, [loadExpenses, showToast, currentUserEmail]);
+  }, [loadExpenses, showToast, currentUserEmail, isAuthenticated]);
 
   // Add / Update handler
   const handleSaveExpense = async (expenseData) => {
