@@ -32,6 +32,16 @@ export function LoginPage({ onLogin, showToast }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validate()) {
+      const users = JSON.parse(localStorage.getItem('pocketflow_users') || '{}');
+      const user = users[email.toLowerCase()];
+      if (!user) {
+        setErrors({ email: 'No account found with this email. Please sign up.' });
+        return;
+      }
+      if (user.password !== password) {
+        setErrors({ password: 'Incorrect password' });
+        return;
+      }
       onLogin(email);
       showToast('Logged in successfully!', 'success');
       navigate('/');

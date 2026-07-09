@@ -43,7 +43,7 @@ export function App() {
     }
   };
 
-  const handleSignup = (email, userName) => {
+  const handleSignup = (email, userName, password) => {
     setIsAuthenticated(true);
     localStorage.setItem('pocketflow_authenticated', 'true');
     localStorage.setItem('pocketflow_user_email', email);
@@ -52,7 +52,7 @@ export function App() {
     
     // Store the email-to-name mapping separately
     const users = JSON.parse(localStorage.getItem('pocketflow_users') || '{}');
-    users[email.toLowerCase()] = { name: userName };
+    users[email.toLowerCase()] = { name: userName, password: password };
     localStorage.setItem('pocketflow_users', JSON.stringify(users));
     
     localStorage.setItem('pocketflow_user_name', userName);
@@ -73,10 +73,41 @@ export function App() {
   const [editingExpense, setEditingExpense] = useState(null);
   
   // Budget limits state
-  const [monthlyBudget, setMonthlyBudget] = useState(() => {
-    const saved = localStorage.getItem('pocketflow_monthly_budget');
-    return saved ? Number(saved) : 5000;
-  });
+  const [monthlyBudget, setMonthlyBudget] = useState(0);
+
+  // Sync monthly budget with current logged-in user
+  useEffect(() => {
+    if (currentUserEmail) {
+      const saved = localStorage.getItem(`pocketflow_monthly_budget_${currentUserEmail.toLowerCase()}`);
+      setMonthlyBudget(saved ? Number(saved) : 0);
+    } else {
+      setMonthlyBudget(0);
+    }
+  }, [currentUserEmail]);
+
+  // Pre-seed default test users if not present
+  useEffect(() => {
+    const users = JSON.parse(localStorage.getItem('pocketflow_users') || '{}');
+    let updated = false;
+    
+    const preseeds = [
+      { email: 'john@example.com', name: 'John Doe', password: 'password' },
+      { email: 'gulshumohammad19@gmail.com', name: 'Gulshu', password: 'password' },
+      { email: 'v28042006@gmail.com', name: 'V', password: 'password' }
+    ];
+
+    preseeds.forEach(u => {
+      const key = u.email.toLowerCase();
+      if (!users[key]) {
+        users[key] = { name: u.name, password: u.password };
+        updated = true;
+      }
+    });
+
+    if (updated) {
+      localStorage.setItem('pocketflow_users', JSON.stringify(users));
+    }
+  }, []);
 
   // Toast notifications state
   const [toast, setToast] = useState(null);
@@ -203,7 +234,11 @@ export function App() {
   // Budget updater handler
   const handleUpdateBudget = (newBudget) => {
     setMonthlyBudget(newBudget);
-    localStorage.setItem('pocketflow_monthly_budget', String(newBudget));
+    if (currentUserEmail) {
+      localStorage.setItem(`pocketflow_monthly_budget_${currentUserEmail.toLowerCase()}`, String(newBudget));
+    } else {
+      localStorage.setItem('pocketflow_monthly_budget', String(newBudget));
+    }
     showToast(`Monthly budget updated successfully.`, 'success');
   };
 

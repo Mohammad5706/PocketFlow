@@ -47,7 +47,7 @@ export function SignupPage({ onSignup, showToast }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validate()) {
-      onSignup(email, fullName);
+      onSignup(email, fullName, password);
       showToast('Account created successfully!', 'success');
       navigate('/');
     }
